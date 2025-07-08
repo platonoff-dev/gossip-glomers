@@ -7,13 +7,13 @@ type setItem interface {
 }
 
 type set[T setItem] struct {
-	mutex sync.RWMutex
+	mutex *sync.RWMutex
 	m     map[T]any
 }
 
 func newSet[T setItem]() set[T] {
 	return set[T]{
-		mutex: sync.RWMutex{},
+		mutex: &sync.RWMutex{},
 		m:     map[T]any{},
 	}
 }
