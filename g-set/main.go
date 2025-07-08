@@ -27,7 +27,6 @@ type AddMessage struct {
 func main() {
 	l := log.New(os.Stderr, "TASK: ", log.Default().Flags())
 	n := maelstrom.NewNode()
-	var neighbors []string
 
 	gset := newSet()
 
@@ -64,23 +63,6 @@ func main() {
 			}
 		}()
 	}
-
-	n.Handle("topology", func(msg maelstrom.Message) error {
-		var body map[string]any
-		if err := json.Unmarshal(msg.Body, &body); err != nil {
-			return err
-		}
-
-		topology := body["topology"].(map[string]any)
-		topologyNeighbours := topology[n.ID()].([]any)
-		for _, neighbor := range topologyNeighbours {
-			neighbors = append(neighbors, neighbor.(string))
-		}
-
-		return n.Reply(msg, map[string]any{
-			"type": "topology_ok",
-		})
-	})
 
 	n.Handle("add", func(msg maelstrom.Message) error {
 		var body AddMessage
