@@ -36,6 +36,11 @@ tasks:
     cmds:
     - go -C broadcast build -o ../runtime/builds/broadcast
     - "{{.MAELSTROM_BIN}} test -w broadcast --bin ./runtime/builds/broadcast --time-limit 20 --topology tree4 --nemesis partition"
+  test-gset:
+    desc: "Run 'gset' test"
+    cmds:
+    - go -C g-set build -o ../runtime/builds/g-set
+    - "{{.MAELSTROM_BIN}} test -w g-set --bin ./runtime/builds/g-set --time-limit 30 --rate 10 --nemesis partition"
   test-all:
     cmds:
     - task: test-echo
