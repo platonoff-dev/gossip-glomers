@@ -1,6 +1,7 @@
 package main
 
 import (
+	"maps"
 	"sync"
 )
 
@@ -35,12 +36,13 @@ func (c *pncounter) add(nodeID string, delta int) {
 func (c *pncounter) read() int {
 	s := 0
 	c.mutex.Lock()
+
 	for _, v := range c.pCounters {
 		s += v
 	}
 
 	for _, v := range c.nCounters {
-		s -= v
+		s += v
 	}
 
 	c.mutex.Unlock()
@@ -61,12 +63,25 @@ func (c *pncounter) merge(externalCounter pncounter) {
 	c.mutex.Unlock()
 }
 
+type counter = map[string]int
+
 func (c *pncounter) serialize() any {
-	return c.pCounters
+	c.mutex.Lock()
+
+	result := map[string]counter{
+		"p": maps.Clone(c.pCounters),
+		"n": maps.Clone(c.nCounters),
+	}
+
+	c.mutex.Unlock()
+	return result
 }
 
 func deserialize(data any) pncounter {
-	counter := newCounter()
-	counter.pCounters = data.(map[string]int)
-	return counter
+	c := newCounter()
+
+	counters := data.(map[string]counter)
+	c.pCounters = counters["p"]
+	c.nCounters = counters["n"]
+	return c
 }

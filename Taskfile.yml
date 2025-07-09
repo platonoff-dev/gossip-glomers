@@ -49,8 +49,8 @@ tasks:
   test-pn-counter:
     desc: "Run pn-counter test"
     cmds:
-    - go -C g-counter build -o ../runtime/builds/pn-counter
-    - "{{.MAELSTROM_BIN}} test -w g-counter --bin ./runtime/builds/pn-counter --time-limit 20 --rate 10"
+    - go -C pn-counter build -o ../runtime/builds/pn-counter
+    - "{{.MAELSTROM_BIN}} test -w pn-counter --bin ./runtime/builds/pn-counter --time-limit 20 --rate 100 --nemesis partition"
   test-all:
     cmds:
     - task: test-echo

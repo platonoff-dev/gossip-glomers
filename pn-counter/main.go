@@ -16,7 +16,7 @@ type task struct {
 
 type ReplicateMessage struct {
 	maelstrom.MessageBody
-	Value map[string]int `json:"value"`
+	Value map[string]counter `json:"value"`
 }
 
 type AddMessage struct {
@@ -28,7 +28,7 @@ func main() {
 	l := log.New(os.Stderr, "TASK: ", log.Default().Flags())
 	n := maelstrom.NewNode()
 
-	gcounter := newCounter()
+	crdt := newCounter()
 
 	tasks := []task{
 		{
@@ -39,7 +39,7 @@ func main() {
 						neighbor,
 						map[string]any{
 							"type":  "replicate",
-							"value": gcounter.serialize(),
+							"value": crdt.serialize(),
 						},
 					)
 					if err != nil {
@@ -70,7 +70,7 @@ func main() {
 			return err
 		}
 
-		gcounter.add(n.ID(), body.Delta)
+		crdt.add(n.ID(), body.Delta)
 
 		return n.Reply(msg, map[string]any{
 			"type": "add_ok",
@@ -80,7 +80,7 @@ func main() {
 	n.Handle("read", func(msg maelstrom.Message) error {
 		return n.Reply(msg, map[string]any{
 			"type":  "read_ok",
-			"value": gcounter.read(),
+			"value": crdt.read(),
 		})
 	})
 
@@ -90,7 +90,7 @@ func main() {
 			return err
 		}
 
-		gcounter.merge(deserialize(body.Value))
+		crdt.merge(deserialize(body.Value))
 		return nil
 	})
 
