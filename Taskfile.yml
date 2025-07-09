@@ -41,6 +41,11 @@ tasks:
     cmds:
     - go -C g-set build -o ../runtime/builds/g-set
     - "{{.MAELSTROM_BIN}} test -w g-set --bin ./runtime/builds/g-set --time-limit 30 --rate 10 --nemesis partition"
+  test-gcounter:
+    desc: "Run g-counter test"
+    cmds:
+    - go -C g-counter build -o ../runtime/builds/g-counter
+    - "{{.MAELSTROM_BIN}} test -w g-counter --bin ./runtime/builds/g-counter --time-limit 20 --rate 10"
   test-all:
     cmds:
     - task: test-echo
