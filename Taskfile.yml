@@ -46,6 +46,11 @@ tasks:
     cmds:
     - go -C g-counter build -o ../runtime/builds/g-counter
     - "{{.MAELSTROM_BIN}} test -w g-counter --bin ./runtime/builds/g-counter --time-limit 20 --rate 10"
+  test-pn-counter:
+    desc: "Run pn-counter test"
+    cmds:
+    - go -C g-counter build -o ../runtime/builds/pn-counter
+    - "{{.MAELSTROM_BIN}} test -w g-counter --bin ./runtime/builds/pn-counter --time-limit 20 --rate 10"
   test-all:
     cmds:
     - task: test-echo
