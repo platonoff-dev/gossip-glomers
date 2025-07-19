@@ -2,17 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"gossip-glomers/internal/worker"
 	"log"
 	"os"
 	"time"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
-
-type task struct {
-	f  func() error
-	dt time.Duration
-}
 
 type ReplicateMessage struct {
 	maelstrom.MessageBody
@@ -30,38 +26,28 @@ func main() {
 
 	crdt := newCounter()
 
-	tasks := []task{
-		{
-			dt: 5 * time.Second,
-			f: func() error {
-				for _, neighbor := range n.NodeIDs() {
-					err := n.Send(
-						neighbor,
-						map[string]any{
-							"type":  "replicate",
-							"value": crdt.serialize(),
-						},
-					)
-					if err != nil {
-						l.Println("Send failed: ", err)
+	w := worker.Worker{
+		Tasks: []worker.Task{
+			{
+				Dt: 5 * time.Second,
+				F: func() error {
+					for _, neighbor := range n.NodeIDs() {
+						err := n.Send(
+							neighbor,
+							map[string]any{
+								"type":  "replicate",
+								"value": crdt.serialize(),
+							},
+						)
+						if err != nil {
+							l.Println("Send failed: ", err)
+						}
 					}
-				}
 
-				return nil
+					return nil
+				},
 			},
 		},
-	}
-
-	for _, t := range tasks {
-		go func() {
-			for {
-				err := t.f()
-				if err != nil {
-					l.Println("Task error: ", err)
-				}
-				time.Sleep(t.dt)
-			}
-		}()
 	}
 
 	n.Handle("add", func(msg maelstrom.Message) error {
@@ -94,8 +80,8 @@ func main() {
 		return nil
 	})
 
+	w.Start()
 	if err := n.Run(); err != nil {
 		log.Fatal(err)
 	}
-
 }

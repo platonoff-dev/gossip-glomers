@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"gossip-glomers/internal/worker"
 	"log"
 	"os"
 	"time"
@@ -9,59 +10,44 @@ import (
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
-type task struct {
-	f  func() error
-	dt time.Duration
-}
-
 type ReplicateMessage struct {
 	maelstrom.MessageBody
-	Value []int `json:"value"`
+	Value map[string]int `json:"value"`
 }
 
 type AddMessage struct {
 	maelstrom.MessageBody
-	Element int `json:"element"`
+	Delta int `json:"delta"`
 }
 
 func main() {
 	l := log.New(os.Stderr, "TASK: ", log.Default().Flags())
 	n := maelstrom.NewNode()
 
-	gset := newSet()
+	gcounter := newCounter()
 
-	tasks := []task{
-		{
-			dt: 5 * time.Second,
-			f: func() error {
-				for _, neighbor := range n.NodeIDs() {
-					err := n.Send(
-						neighbor,
-						map[string]any{
-							"type":  "replicate",
-							"value": gset.serialize(),
-						},
-					)
-					if err != nil {
-						l.Println("Send failed: ", err)
+	w := worker.Worker{
+		Tasks: []worker.Task{
+			{
+				Dt: 5 * time.Second,
+				F: func() error {
+					for _, neighbor := range n.NodeIDs() {
+						err := n.Send(
+							neighbor,
+							map[string]any{
+								"type":  "replicate",
+								"value": gcounter.serialize(),
+							},
+						)
+						if err != nil {
+							l.Println("Send failed: ", err)
+						}
 					}
-				}
 
-				return nil
+					return nil
+				},
 			},
 		},
-	}
-
-	for _, t := range tasks {
-		go func() {
-			for {
-				err := t.f()
-				if err != nil {
-					l.Println("Task error: ", err)
-				}
-				time.Sleep(t.dt)
-			}
-		}()
 	}
 
 	n.Handle("add", func(msg maelstrom.Message) error {
@@ -70,7 +56,7 @@ func main() {
 			return err
 		}
 
-		gset.add(body.Element)
+		gcounter.add(n.ID(), body.Delta)
 
 		return n.Reply(msg, map[string]any{
 			"type": "add_ok",
@@ -80,7 +66,7 @@ func main() {
 	n.Handle("read", func(msg maelstrom.Message) error {
 		return n.Reply(msg, map[string]any{
 			"type":  "read_ok",
-			"value": gset.serialize(),
+			"value": gcounter.read(),
 		})
 	})
 
@@ -90,10 +76,11 @@ func main() {
 			return err
 		}
 
-		gset.union(deserialize(body.Value))
+		gcounter.merge(deserialize(body.Value))
 		return nil
 	})
 
+	w.Start()
 	if err := n.Run(); err != nil {
 		log.Fatal(err)
 	}
