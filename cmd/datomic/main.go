@@ -20,12 +20,9 @@ type TransactionRequest struct {
 	Transactions [][]any `json:"txn"`
 }
 
-func deserializeTrasactions(raw [][]any) ([]Transaction, error) { //nolint: gocognit
-	l := log.New(os.Stderr, "DESERIALIZE: ", log.Default().Flags())
-	l.Println(raw)
-	transactions := []Transaction{}
+func deserializeTrasactions(raw [][]any) ([]*Transaction, error) { //nolint: gocognit
+	transactions := []*Transaction{}
 	for _, t := range raw {
-		l.Println(t)
 		op, ok := t[0].(string)
 		if !ok {
 			return nil, errors.New("bad transaction format: op")
@@ -60,7 +57,7 @@ func deserializeTrasactions(raw [][]any) ([]Transaction, error) { //nolint: goco
 			}
 		}
 
-		transactions = append(transactions, Transaction{
+		transactions = append(transactions, &Transaction{
 			Op:     op,
 			Key:    int(key),
 			Values: values,
@@ -70,12 +67,10 @@ func deserializeTrasactions(raw [][]any) ([]Transaction, error) { //nolint: goco
 	return transactions, nil
 }
 
-func serializeTransactions(transactions []Transaction) [][]any {
-	l := log.New(os.Stderr, "SERIALIZE: ", log.Default().Flags())
+func serializeTransactions(transactions []*Transaction) [][]any {
 	result := [][]any{}
 
 	for _, t := range transactions {
-		l.Println(t)
 		var resultValue any
 		if t.Op == "append" {
 			resultValue = t.Values[0]
@@ -94,7 +89,10 @@ func serializeTransactions(transactions []Transaction) [][]any {
 }
 
 func main() {
+	l := log.New(os.Stderr, "DATA: ", log.Default().Flags())
 	n := maelstrom.NewNode()
+
+	state := NewState()
 
 	n.Handle("txn", func(msg maelstrom.Message) error {
 		var body TransactionRequest
@@ -107,10 +105,11 @@ func main() {
 			return err
 		}
 
+		state.Transact(transactions)
+
 		result := serializeTransactions(transactions)
-		if err != nil {
-			return err
-		}
+
+		l.Println(state.Data)
 
 		return n.Reply(msg, map[string]any{
 			"type": "txn_ok",
