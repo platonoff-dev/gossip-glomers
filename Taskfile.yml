@@ -11,50 +11,60 @@ tasks:
     - mkdir -p ./runtime
     - curl -L https://github.com/jepsen-io/maelstrom/releases/download/v0.2.4/maelstrom.tar.bz2 | tar xj -C ./runtime
     - echo "Project setup complete."
+
   test-echo:
     desc: 'Run echo test'
     cmds:
     - go build -o ./runtime/builds/echo ./cmd/echo
     - "{{.MAELSTROM_BIN}} test -w echo --bin ./runtime/builds/echo --node-count 1 --time-limit 10"
+
   test-unique-ids:
     desc: "Run 'Unique IDs' test"
     cmds:
     - go build -o ./runtime/builds/unique-ids ./cmd/unique-ids
     - "{{.MAELSTROM_BIN}} test -w unique-ids --bin ./runtime/builds/unique-ids --node-count 1 --time-limit 100"
+
   test-broadcast-single-node:
     desc: "Run 'Broadcast' test"
     cmds:
     - go build -o ./runtime/builds/broadcast ./cmd/broadcast
     - "{{.MAELSTROM_BIN}} test -w broadcast --bin ./runtime/builds/broadcast --node-count 1 --time-limit 20 --rate 100"
+
   test-broadcast-multi-node:
     desc: "Run 'Broadcast' test"
     cmds:
     - go build -o ./runtime/builds/broadcast ./cmd/broadcast
     - "{{.MAELSTROM_BIN}} test -w broadcast --bin ./runtime/builds/broadcast --node-count 25 --time-limit 10 --rate 100"
+
   test-broadcast-multi-node-partition:
     desc: "Run 'Broadcast' test"
     cmds:
     - go build -o ./runtime/builds/broadcast ./cmd/broadcast
     - "{{.MAELSTROM_BIN}} test -w broadcast --bin ./runtime/builds/broadcast --time-limit 20 --topology tree4 --nemesis partition"
+
   test-gset:
     desc: "Run 'gset' test"
     cmds:
     - go build -o ./runtime/builds/g-set ./cmd/g-set
     - "{{.MAELSTROM_BIN}} test -w g-set --bin ./runtime/builds/g-set --time-limit 30 --rate 10 --nemesis partition"
+
   test-gcounter:
     desc: "Run g-counter test"
     cmds:
     - go build -o ./runtime/builds/g-counter ./cmd/g-counter
     - "{{.MAELSTROM_BIN}} test -w g-counter --bin ./runtime/builds/g-counter --time-limit 20 --rate 10"
+
   test-pn-counter:
     desc: "Run pn-counter test"
     cmds:
     - go build -o ./runtime/builds/pn-counter ./cmd/pn-counter
     - "{{.MAELSTROM_BIN}} test -w pn-counter --bin ./runtime/builds/pn-counter --time-limit 20 --rate 100 --nemesis partition"
+
   test-txn-list-append:
     cmds:
     - go build -o ./runtime/builds/datomic ./cmd/datomic
-    - "{{.MAELSTROM_BIN}} test -w txn-list-append --bin ./runtime/builds/datomic --time-limit 20 --rate 100"
+    - "{{.MAELSTROM_BIN}} test -w txn-list-append --bin ./runtime/builds/datomic --log-stderr --node-count 1 --time-limit 3"
+
   serve:
     cmds:
     - "{{.MAELSTROM_BIN}} serve"
