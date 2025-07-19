@@ -1,4 +1,4 @@
-package main
+package main //nolint:cyclop
 
 import (
 	"encoding/json"
@@ -15,11 +15,14 @@ type BroadcastBody struct {
 	Message int `json:"message"`
 }
 
-type broadcastRequest struct {
-	message     int
-	destination string
+type ToplogyBody struct{}
+
+type ToplogyRequest struct {
+	Topology map[string][]string `json:"topology"`
+	maelstrom.MessageBody
 }
 
+// nolint: gocognit,funlen
 func main() {
 	n := maelstrom.NewNode()
 	var messages []int
@@ -64,7 +67,7 @@ func main() {
 						},
 					)
 					if err != nil {
-						fmt.Println(fmt.Errorf("failed to broadcast message to node %s: %v", node, err))
+						fmt.Println(fmt.Errorf("failed to broadcast message to node %s: %w", node, err))
 					}
 
 					if responseReceived {
@@ -93,17 +96,12 @@ func main() {
 	})
 
 	n.Handle("topology", func(msg maelstrom.Message) error {
-		var body map[string]any
+		var body ToplogyRequest
 		if err := json.Unmarshal(msg.Body, &body); err != nil {
 			return err
 		}
 
-		topology := body["topology"].(map[string]any)
-		topologyNeighbours := topology[n.ID()].([]any)
-		for _, neighbor := range topologyNeighbours {
-			neighbors = append(neighbors, neighbor.(string))
-		}
-
+		neighbors = body.Topology[n.ID()]
 		return n.Reply(msg, map[string]any{
 			"type": "topology_ok",
 		})

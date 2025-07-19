@@ -2,17 +2,17 @@ package main
 
 import (
 	"encoding/json"
-	"gossip-glomers/internal/worker"
 	"log"
 	"os"
 	"time"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
+	"gossip-glomers/internal/worker"
 )
 
 type ReplicateMessage struct {
-	maelstrom.MessageBody
 	Value map[string]counter `json:"value"`
+	maelstrom.MessageBody
 }
 
 type AddMessage struct {

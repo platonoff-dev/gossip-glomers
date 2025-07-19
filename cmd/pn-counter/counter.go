@@ -80,7 +80,7 @@ func (c *pncounter) serialize() any {
 func deserialize(data any) pncounter {
 	c := newCounter()
 
-	counters := data.(map[string]counter)
+	counters, _ := data.(map[string]counter)
 	c.pCounters = counters["p"]
 	c.nCounters = counters["n"]
 	return c

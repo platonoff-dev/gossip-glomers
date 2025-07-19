@@ -1,0 +1,203 @@
+version: "2"
+linters:
+  enable:
+  # Enabled by default
+  - errcheck
+  - govet
+  - ineffassign
+  - staticcheck
+  - unused
+
+  # Additional essential linters
+  - bodyclose
+  - contextcheck
+  - cyclop
+  - dupl
+  - durationcheck
+  - errname
+  - errorlint
+  - exhaustive
+  - forcetypeassert
+  - funlen
+  - gocognit
+  - goconst
+  - gocritic
+  - gocyclo
+  - godot
+  - goprintffuncname
+  - gosec
+  - lll
+  - makezero
+  - misspell
+  - nakedret
+  - nestif
+  - nilerr
+  - nilnil
+  - noctx
+  - nolintlint
+  - prealloc
+  - predeclared
+  - revive
+  - rowserrcheck
+  - sqlclosecheck
+  - thelper
+  - tparallel
+  - unconvert
+  - unparam
+  - wastedassign
+  - whitespace
+  # Experimental/additional (enable as needed)
+  # - asciicheck
+  # - bidichk
+  # - containedctx
+  # - decorder
+  # - depguard
+  # - dogsled
+  # - errchkjson
+  # - execinquery
+  # - exhaustivestruct
+  # - ginkgolinter
+  # - gomoddirectives
+  # - gomodguard
+  # - grouper
+  # - importas
+  # - ireturn
+  # - maintidx
+  # - nlreturn
+  # - nosprintfhostport
+  # - paralleltest
+  # - promlinter
+  # - reassign
+  # - stylecheck
+  # - tagliatelle
+  # - testpackage
+  # - usestdlibvars
+  # - varnamelen
+  # - wrapcheck
+  # - wsl
+  settings:
+    # Cyclomatic complexity
+    cyclop:
+      max-complexity: 15
+      package-average: 10.0
+
+    # Cognitive complexity
+    gocognit:
+      min-complexity: 15
+
+    # Function length
+    funlen:
+      lines: 80
+      statements: 50
+
+    # Nesting depth
+    nestif:
+      min-complexity: 5
+
+    # Line length
+    lll:
+      line-length: 120
+
+    # Naming conventions
+    revive:
+      severity: warning
+      confidence: 0.8
+      rules:
+      - name: exported
+        severity: error
+      - name: unexported-return
+        severity: warning
+      - name: var-naming
+        severity: warning
+      - name: package-comments
+        severity: error
+      - name: dot-imports
+        severity: error
+      - name: blank-imports
+        severity: error
+
+    # Error handling
+    errorlint:
+      errorf: true
+      asserts: true
+      comparison: true
+
+    # Exhaustive switch
+    exhaustive:
+      default-signifies-exhaustive: true
+
+    # Struct tags
+    govet:
+      enable:
+      - assign
+      - atomic
+      - bools
+      - buildtag
+      - copylocks
+      - fieldalignment
+      - httpresponse
+      - loopclosure
+      - lostcancel
+      - nilfunc
+      - printf
+      - shift
+      - stdmethods
+      - structtag
+      - tests
+      - unmarshal
+      - unreachable
+      - unsafeptr
+      - unusedresult
+
+    # Performance
+    prealloc:
+      simple: true
+      range-loops: true
+      for-loops: false
+
+    # Security
+    gosec:
+      severity: medium
+      confidence: medium
+      excludes:
+      - G204 # Subprocess launched with variable
+      - G304 # File path provided as taint input
+
+    # Constants
+    goconst:
+      min-len: 3
+      min-occurrences: 3
+
+    # Comments
+    godot:
+      scope: declarations
+      exclude:
+      - "Check if"
+      - "Make sure"
+      capital: false
+
+  exclusions:
+    generated: lax
+    presets:
+    - comments
+    rules:
+    - path: _test\.go
+      linters:
+      - gocognit
+      - gocyclo
+      - funlen
+      - lll
+      - revive
+      - cyclop
+      - errcheck
+formatters:
+  enable:
+  - gci
+  - gofmt
+  - gofumpt
+  - goimports
+
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true

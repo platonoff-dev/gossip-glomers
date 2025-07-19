@@ -54,6 +54,7 @@ func (c *gcounter) serialize() any {
 
 func deserialize(data any) gcounter {
 	counter := newCounter()
-	counter.nodeCounters = data.(map[string]int)
+	nodeCounters, _ := data.(map[string]int)
+	counter.nodeCounters = nodeCounters
 	return counter
 }

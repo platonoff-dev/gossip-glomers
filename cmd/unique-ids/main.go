@@ -18,7 +18,7 @@ func main() {
 		}
 
 		body["type"] = "generate_ok"
-		body["id"] = rand.Int()
+		body["id"] = rand.Int() //nolint: gosec
 
 		return n.Reply(msg, body)
 	})

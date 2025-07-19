@@ -1,0 +1,76 @@
+# Pre-commit hooks for Go SQL database project
+repos:
+# Go specific hooks
+- repo: https://github.com/dnephin/pre-commit-golang
+  rev: v0.5.1
+  hooks:
+  - id: go-fmt
+    name: Go Format
+    description: Runs gofmt, formats Go code
+  - id: go-mod-tidy
+    name: Go Mod Tidy
+    description: Runs go mod tidy
+  - id: go-build
+    name: Go Build
+    description: Runs go build
+  - id: go-mod-vendor
+    name: Go Mod Vendor
+    description: Runs go mod vendor
+    stages: [ manual ]
+
+# golangci-lint (most important)
+- repo: https://github.com/golangci/golangci-lint
+  rev: v2.2.2
+  hooks:
+  - id: golangci-lint
+    name: golangci-lint
+    description: Fast linters runner for Go
+    entry: golangci-lint run --fix
+    language: golang
+    types: [ go ]
+    require_serial: true
+
+# General hooks
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.4.0
+  hooks:
+  - id: trailing-whitespace
+    name: Trim Trailing Whitespace
+  - id: end-of-file-fixer
+    name: Fix End of Files
+  - id: check-merge-conflict
+    name: Check for merge conflicts
+  - id: check-added-large-files
+    name: Check for added large files
+    args: [ '--maxkb=1000' ]
+  - id: check-yaml
+    name: Check YAML
+  - id: check-json
+    name: Check JSON
+  - id: check-case-conflict
+    name: Check for case conflicts
+
+# Commit message format
+- repo: https://github.com/compilerla/conventional-pre-commit
+  rev: v3.0.0
+  hooks:
+  - id: conventional-pre-commit
+    name: Conventional Commit
+    stages: [ commit-msg ]
+
+# Global configuration
+default_language_version:
+  python: python3.11
+
+# Skip hooks for specific scenarios
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

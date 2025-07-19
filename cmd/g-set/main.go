@@ -2,12 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"gossip-glomers/internal/worker"
 	"log"
 	"os"
 	"time"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
+	"gossip-glomers/internal/worker"
 )
 
 type ReplicateMessage struct {
@@ -85,5 +85,4 @@ func main() {
 	if err := n.Run(); err != nil {
 		log.Fatal(err)
 	}
-
 }
