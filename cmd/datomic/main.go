@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
-	"os"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
@@ -89,7 +88,6 @@ func serializeTransactions(transactions []*Transaction) [][]any {
 }
 
 func main() {
-	l := log.New(os.Stderr, "DATA: ", log.Default().Flags())
 	n := maelstrom.NewNode()
 
 	state := NewState()
@@ -108,8 +106,6 @@ func main() {
 		state.Transact(transactions)
 
 		result := serializeTransactions(transactions)
-
-		l.Println(state.Data)
 
 		return n.Reply(msg, map[string]any{
 			"type": "txn_ok",

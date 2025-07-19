@@ -63,7 +63,7 @@ tasks:
   test-txn-list-append:
     cmds:
     - go build -o ./runtime/builds/datomic ./cmd/datomic
-    - "{{.MAELSTROM_BIN}} test -w txn-list-append --bin ./runtime/builds/datomic --log-stderr --node-count 1 --time-limit 3"
+    - "{{.MAELSTROM_BIN}} test -w txn-list-append --bin ./runtime/builds/datomic --time-limit 30 --node-count 1 --concurrency 10n --rate 100"
 
   serve:
     cmds:

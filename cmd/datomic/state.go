@@ -1,7 +1,13 @@
 package main
 
+import (
+	"slices"
+	"sync"
+)
+
 type State struct {
 	Data map[int][]int
+	Lock sync.Mutex
 }
 
 func NewState() State {
@@ -11,9 +17,11 @@ func NewState() State {
 }
 
 func (s *State) Transact(transactions []*Transaction) {
+	s.Lock.Lock()
+	defer s.Lock.Unlock()
 	for _, t := range transactions {
 		if t.Op == "r" {
-			t.Values = s.Data[t.Key]
+			t.Values = slices.Clone(s.Data[t.Key])
 		}
 
 		if t.Op == "append" {
